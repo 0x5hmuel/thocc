@@ -4,18 +4,23 @@
  *
  *
  */
-int main(int argc, char *argv[]) {
-  // TODO: this needs to be removed once I understand how to make use of epoll
-  // or a better alternative
-  if (argc < 2) {
-    fprintf(stderr, "%s: error: keyboard path missing\n", argv[0]);
-    fprintf(stderr, "Usage: %s <keyboard_path>\n", argv[0]);
-    return 1;
-  }
+int main(void) {
+  struct epoll_event ev, events[MAX_EVENTS];
 
-  char *keyboard_path = argv[1];
   printf("Welcome to THocc!\n");
-  read_input();
+
+  glob_t g = find_keyboards();
+  Keyboards keyboard_fd = open_keyboards(g);
+
+  int epoll_fd =
+      register_keyboard_epoll_inevents(keyboard_fd.slots, keyboard_fd.size, ev);
+
+  if (epoll_fd != -1) {
+    while (1) {
+      int e = read_epoll_events(epoll_fd, events);
+      printf("Epoll events: %d\n", e);
+    }
+  }
 
   return 0;
 }

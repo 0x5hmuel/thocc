@@ -1,14 +1,7 @@
 #include "input_headers.h"
-#include <stdlib.h>
-#include <sys/epoll.h>
 
-#define MAX_EVENTS 10
-
-int *open_keyboard(void) {
+glob_t find_keyboards() {
   glob_t g;
-  int kbd_fd;
-  int i = 0;
-  int *keyboard_fds; // could
 
   int glob_result = -1;
 
@@ -16,18 +9,28 @@ int *open_keyboard(void) {
 
   if (glob_result == GLOB_NOMATCH) {
     perror("No keyboards found");
-    return NULL;
+    exit(EXIT_FAILURE);
   } else if (glob_result != 0) {
     fprintf(stderr, "No input devices found.\n");
-    return NULL;
+    exit(EXIT_FAILURE);
   }
 
-  keyboard_fds = malloc(g.gl_pathc * sizeof(int));
+  return g;
+};
 
-  if (keyboard_fds == NULL) {
+Keyboards open_keyboards(glob_t g) {
+  int kbd_fd;
+  int i = 0;
+
+  Keyboards kbds;
+
+  kbds.slots = malloc(g.gl_pathc * sizeof(int));
+  kbds.size = g.gl_pathc;
+
+  if (kbds.slots == NULL) {
     perror("Unable to allocate memory");
     globfree(&g);
-    return NULL;
+    exit(EXIT_FAILURE);
   }
 
   while (g.gl_pathv[i]) {
@@ -37,19 +40,16 @@ int *open_keyboard(void) {
       if (errno == EACCES) {
         fprintf(stderr,
                 "Unable to read kbd, run sudo usermod -aG input $USER\n");
-        exit(EXIT_FAILURE);
       } else {
         fprintf(stderr, "Unable to open file %s: %s\n", g.gl_pathv[i],
                 strerror(errno));
-        exit(EXIT_FAILURE);
       }
     }
 
-    keyboard_fds[i] = kbd_fd;
+    kbds.slots[i] = kbd_fd;
     ++i;
   }
-  keyboard_fds[i] = '\0';
 
   globfree(&g);
-  return keyboard_fds;
+  return kbds;
 }
