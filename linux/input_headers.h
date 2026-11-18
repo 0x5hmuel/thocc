@@ -7,8 +7,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/epoll.h>
 #include <sys/types.h>
 #include <unistd.h>
 
 int read_input(void);
-int open_keyboard(void);
+int *open_keyboard(void);
