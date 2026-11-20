@@ -1,6 +1,6 @@
 #include "input_headers.h"
 
-glob_t find_keyboards() {
+glob_t find_keyboards(void) {
   glob_t g;
 
   int glob_result = -1;

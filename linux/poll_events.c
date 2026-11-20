@@ -2,8 +2,9 @@
 #include <stdlib.h>
 #include <sys/epoll.h>
 
-int create_epoll_instance() {
+int create_epoll_instance(void) {
   int epfd = epoll_create1(0);
+
   if (epfd == -1) {
     perror("Unable to create epoll instance");
     return (-1);
