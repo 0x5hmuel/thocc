@@ -22,9 +22,10 @@ typedef struct {
 } Keyboards;
 
 int read_input(void);
-Keyboards open_keyboards(glob_t g);
-int register_keyboard_epoll_inevents(int *, int, struct epoll_event);
-glob_t find_keyboards(void);
+Keyboards open_keyboards(glob_t *g);
+int register_keyboard_epoll_inevents(Keyboards *, struct epoll_event *);
+int find_keyboards(glob_t *g);
 int read_epoll_events(int, struct epoll_event[]);
+ssize_t read_event(int, struct input_event *);
 
 #endif // INPUT_HEADERS_H
