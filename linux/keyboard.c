@@ -62,7 +62,7 @@ ssize_t read_event(int key_fd, struct input_event *ev) {
   ssize_t count = read(key_fd, ev, sizeof(*ev));
 
   if (ev->type != EV_KEY || ev->value == 2) { // skip non-key or long presses
-    return -1;
+    return 1;
   }
 
   return count;

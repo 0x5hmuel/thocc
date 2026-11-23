@@ -40,20 +40,16 @@ int register_keyboard_epoll_inevents(Keyboards *key, struct epoll_event *ev) {
   return epoll;
 }
 
-int deregister_epoll_event(Keyboards *key, struct epoll_event *ev, int epfd) {
+int deregister_epoll_event(int kbd_fd, struct epoll_event *ev, int epfd) {
+  int tc = epoll_ctl(epfd, EPOLL_CTL_DEL, kbd_fd, ev);
 
-  int tc = epoll_ctl(epfd, EPOLL_CTL_DEL, key->slots[i], ev);
+  return tc;
 }
 
 int read_epoll_events(int epfd, struct epoll_event *ev) {
   int event_count = 0;
 
   event_count = epoll_wait(epfd, ev, MAX_EVENTS, -1);
-
-  if (event_count == -1) {
-    perror("Unable to get event");
-    exit(EXIT_FAILURE);
-  }
 
   return event_count;
 }

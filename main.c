@@ -32,17 +32,34 @@ int main(void) {
   if (epoll_fd != -1) {
     while (1) {
       int e = read_epoll_events(epoll_fd, events);
-      for (int n = 0; n < e; n++) {
+
+      if (e == -1) {
+        if (errno == EINTR)
+          continue;
+        else {
+          perror("Unable to get event");
+          exit(EXIT_FAILURE);
+        }
+      }
+
+      for (int n = 0; n < e; n++) { // loop up to the number of fd ready for I/O
         int fd = events[n].data.fd;
         ssize_t count = read_event(fd, &input_ev);
+        int error = errno;
+
         if (count == (ssize_t)-1) {
           if (errno == ENODEV) {
+            fprintf(stderr, "Error: %s\n", strerror(error));
             perror("Device disconnected");
-            deregister_epoll_event(&keyboards, &ev, epoll_fd);
+            if (deregister_epoll_event(fd, &ev, epoll_fd) == -1) {
+              fprintf(stderr, "Error: %s\n", strerror(error));
+              perror("Unable to disconnect device");
+            } else
+              printf("Successfully disconnected");
             continue;
           }
-        }
-        printf("%d %d %d\n", input_ev.value, input_ev.code, input_ev.type);
+        } else
+          printf("Keypress: %d\n ", input_ev.code);
       }
     }
   }
