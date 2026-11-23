@@ -1,4 +1,5 @@
 #include "input_headers.h"
+#include <sys/epoll.h>
 
 int create_epoll_instance(void) {
   int epfd = epoll_create1(0);
@@ -37,6 +38,11 @@ int register_keyboard_epoll_inevents(Keyboards *key, struct epoll_event *ev) {
   }
 
   return epoll;
+}
+
+int deregister_epoll_event(Keyboards *key, struct epoll_event *ev, int epfd) {
+
+  int tc = epoll_ctl(epfd, EPOLL_CTL_DEL, key->slots[i], ev);
 }
 
 int read_epoll_events(int epfd, struct epoll_event *ev) {

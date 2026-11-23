@@ -21,7 +21,7 @@ int main(void) {
   kbds = find_keyboards(&g);
 
   if (kbds != 0) {
-    fprintf(stderr, "Failed to find input devices");
+    fprintf(stderr, "Failed to find input devices\n");
     return 1;
   }
 
@@ -36,7 +36,11 @@ int main(void) {
         int fd = events[n].data.fd;
         ssize_t count = read_event(fd, &input_ev);
         if (count == (ssize_t)-1) {
-          continue;
+          if (errno == ENODEV) {
+            perror("Device disconnected");
+            deregister_epoll_event(&keyboards, &ev, epoll_fd);
+            continue;
+          }
         }
         printf("%d %d %d\n", input_ev.value, input_ev.code, input_ev.type);
       }

@@ -8,10 +8,11 @@
 int find_keyboards(glob_t *g) {
   int glob_result;
 
-  glob_result = glob("/dev/input/by-path/*-event-kbd", 0, NULL, g);
+  // TODO: change to read all events and get those that are inputs
+  glob_result = glob("/dev/input/event*", 0, NULL, g);
 
   if (glob_result == GLOB_NOMATCH) {
-    fprintf(stderr, "No keyboards found.\n");
+    fprintf(stderr, "No keyboards found.\n"); // falls under the retryable error
     return 1;
   } else if (glob_result != 0) {
     fprintf(stderr, "No input devices found.\n");
@@ -59,15 +60,6 @@ Keyboards open_keyboards(glob_t *g) {
 ssize_t read_event(int key_fd, struct input_event *ev) {
 
   ssize_t count = read(key_fd, ev, sizeof(*ev));
-
-  if (count == -(ssize_t)1) {
-    perror("Unable to read file.");
-    exit(EXIT_FAILURE);
-  }
-  if (count != sizeof(*ev)) {
-    fprintf(stderr, "Unexpected short read.");
-    exit(EXIT_FAILURE);
-  }
 
   if (ev->type != EV_KEY || ev->value == 2) { // skip non-key or long presses
     return -1;

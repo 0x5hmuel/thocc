@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/epoll.h>
+#include <sys/inotify.h>
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -27,5 +28,8 @@ int register_keyboard_epoll_inevents(Keyboards *, struct epoll_event *);
 int find_keyboards(glob_t *g);
 int read_epoll_events(int, struct epoll_event[]);
 ssize_t read_event(int, struct input_event *);
+int create_watch_instance(void);
+int scan_input_dirs(void);
+int deregister_epoll_event(Keyboards *, struct epoll_event *, int epfd);
 
 #endif // INPUT_HEADERS_H
