@@ -33,6 +33,9 @@ int main(void) {
     while (1) {
       int e = read_epoll_events(epoll_fd, events);
 
+      if (e == 0) // skip if return is zero
+        continue;
+
       if (e == -1) {
         if (errno == EINTR)
           continue;
