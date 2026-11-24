@@ -1,4 +1,5 @@
 #include "linux/input_headers.h"
+#include "linux/logs/log.h"
 #include <linux/input.h>
 #include <stdio.h>
 #include <sys/types.h>
@@ -16,12 +17,12 @@ int main(void) {
   int kbds;
   int i = 0;
 
-  printf("Welcome to THocc!\n");
+  log_msg(20, "Welcome to Thocc");
 
   kbds = find_keyboards(&g);
 
   if (kbds != 0) {
-    fprintf(stderr, "Failed to find input devices\n");
+    log_msg(30, "Failed to find input devices", strerror(errno));
     return 1;
   }
 
@@ -57,8 +58,10 @@ int main(void) {
             if (deregister_epoll_event(fd, &ev, epoll_fd) == -1) {
               fprintf(stderr, "Error: %s\n", strerror(error));
               perror("Unable to disconnect device");
-            } else
+            } else {
+              close(fd);
               printf("Successfully disconnected");
+            }
             continue;
           }
         } else
